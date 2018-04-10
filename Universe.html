@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+	<title>Milkyway</title>
+	
+	<script src="Stars.js"></script>
+	<script src="Planet.js"></script>
+	<script src="p5/p5.min.js"></script>
+	<script type="text/javascript">
+		/*
+	
+(AU)	Radius
+(Earth's)	Mass
+(Earth's)	Rotation
+(Earth's)	# Moons	Orbital
+Inclination	Orbital
+Eccentricity	Obliquity	Density
+		Distance											(g/cm3)
+Sun		0		109	332,800	25-36*	9	---	---	---	1.410
+Mercury	0.39	0.38	0.05	58.8	0	7		0.2056	0.1°	5.43
+Venus	0.72	0.95	0.89	244	0	3.394		0.0068	177.4°	5.25
+Earth	1.0		1.00	1.00	1.00	1	0.000	0.0167	23.45°	5.52
+Mars	1.5		0.53	0.11	1.029	2	1.850	0.0934	25.19°	3.95
+Jupiter	5.2		11		318		0.411	16	1.308	0.0483	3.12°	1.33
+Saturn	9.5		9		95		0.428	18	2.488	0.0560	26.73°	0.69
+Uranus	19.2	4		17		0.748	15	0.774	0.0461	97.86°	1.29
+Neptune	30.1	4		17		0.802	8	1.774	0.0097	29.56°	1.64
+Pluto	39.5	0.18	0.002	0.267	1	17.15	0.2482	119.6°	2.03
+
+
+* The Sun's period of rotation at the surface varies from approximately 25 days at the equator to 36 days at the poles. Deep down, below the convective zone, everything appears to rotate with a period of 27 days.
+
+Then the Earth has one natural satellite i.e. our moon.
+
+Mars has 2 moons, Phobos and Deimos.
+
+Then the outer planets like Jupiter has 67 moons (as of 2014) out of which Ganymede, Europa, Io, Callisto are major moons.
+
+Saturn has 62 moons. Titan is the biggest one and the others are Enceladus, Mimas, Iapetus etc.
+
+Uranus has 27 known satellites. Some of which are Titania, Umbriel, Miranda, Ariel, Trinculo, Oberon, Puck etc.
+
+Then the last planet Neptune has 14 known satellites. Triton, Halimede are major ones.
+
+		*/
+
+		//: Sun, Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus, Neptune, and Pluto.
+
+		var milkyway; 
+		var ctx;
+		//var stars = [];
+		//var redrawStarsSpeed = 0.1;
+		//var redrawStars = 0;
+		var StarF;
+
+		function setup() {
+ 			canvas = createCanvas(1200,1200);
+ 			ctx = canvas.drawingContext;
+ 			milkyway = new Galaxy( "The Milkyway", ctx);
+ 			//populateStars();
+ 			StarF = new StarField();
+		}
+ 			
+		function draw() {
+		  	background(0);
+		  	//drawStars();
+		  	this.StarF.render();
+		  	milkyway.render(); 	
+		}
+	
+	</script>
+
+</html>
+
+
