@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+	<title>Bubble & Noise</title>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.6.0/p5.js"></script>
+	<script type="text/javascript">
+
+		var system ;
+		var life ;
+		var gravity = -0.010; // +drop -float
+		var scl = 20;
+		var cols = 0 ; 
+		var rows = 0;
+		var inc = 0.1;
+		var fr ;
+		var zoff = 0;
+		var flowfield;
+
+		function setup() {
+ 			createCanvas(1100,700);
+			system = new ParticleSystem(createVector(width/2, height-20)); 
+			cols = floor(width/scl);
+			rows = floor(height/scl);
+			flowfield = new Array(cols*rows);
+			//for (var i = 0 ; i < 50 ; i ++){
+			//	system.addParticle(createVector(random(width), random(height)));
+			//}
+		  
+			
+  		}
+
+
+		function draw() {
+			system.addParticle(createVector(random(0,width), -20));
+			life = random(200,255);
+		  	background(255);
+		  	drawGrid(cols,rows);
+		  	system.run(flowfield,scl);
+		  	//fr.html(floor(frameRate()));
+		}
+
+
+
+		function drawGrid ( cols, rows ) {
+			
+			var yoff = 0;
+			
+			for (var y = 0 ; y < rows ; y++){
+				var xoff = 0;
+				
+				for (var x = 0 ; x < cols ; x++){
+					xoff +=inc;
+					var angle = noise(xoff,yoff,zoff)*TWO_PI*4;	
+					var v = p5.Vector.fromAngle(angle);
+					v.setMag(0.1);
+					var idx = (x+y)*cols;
+					flowfield[idx] = v;
+					
+					
+					//push();
+					//stroke(0,20);
+					//translate(x*scl, y*scl)	;
+					//rotate(v.heading());
+					//line(0,0,scl,0);
+					
+					//fill(r);
+					//rect(x*scl,y*scl,scl,scl);
+					
+					//pop();
+					
+				}
+				yoff+=inc;
+			}
+			zoff += (inc/30);
+		}
+
+
+		var Particle = function(position) {
+			//this.acceleration = createVector(random(-0.002,0.002), gravity);
+		  	//this.velocity = createVector(random(-1, 1), random(-1, 0));
+		  	this.acceleration = createVector(0,0);
+		  	this.velocity =  createVector(0,-1); //p5.Vector.random2D();
+			this.position = position.copy();
+		  	this.lifespan = 255; 
+		  	this.bubbleSize = random(2,60);
+		  	this.previousPosition = position.copy();
+		};
+
+		Particle.prototype.run = function(flowfield_,scl_) {
+
+			this.follow(flowfield_,scl_);
+		  	this.update();
+		  	this.edges();
+		  	this.display();
+		  	this.previousPosition.x = this.position.x;
+		  	this.previousPosition.y = this.position.y;
+
+		};
+
+		Particle.prototype.follow = function (ff_,scl_){
+			var x =  floor(this.position.x / scl_);
+			var y =  floor(this.position.y / scl_);
+
+			var s = floor(width / 20);
+			var idx = (x+y)*s;
+			var force = flowfield[idx];
+			//console.log(flowfield.length);
+			//console.log(idx);
+			//console.log(JSON.stringify(force));
+			this.applyForce( force );
+
+
+
+			
+		};
+
+		Particle.prototype.applyForce = function (force){
+			this.acceleration.add(force);
+		};
+
+		Particle.prototype.edges = function (){
+			var isEdge = false;
+			if (this.position.x > width) {
+				this.position.x = 0;	
+				isEdge = true;
+			} 
+			if (this.position.x < 0) {
+				this.position.x = width;
+				isEdge = true;
+			}
+			if (this.position.y > height) {
+				this.position.y = 0;
+				isEdge = true;
+			}
+			if (this.position.y < 0 ) {
+				this.position.y = height;
+				isEdge = true;
+			}
+
+			if (isEdge){
+				this.previousPosition = this.position.copy();
+			}
+
+
+		};
+
+		// Method to update position
+		Particle.prototype.update = function(){
+
+		 
+		  this.velocity.add(this.acceleration);
+		  this.velocity.limit(2);//set max speed;
+		  this.position.add(this.velocity);
+		  this.acceleration.mult(0);
+		  this.lifespan -= random(-2,3); //if we are adding in the draw function, we need to kill of the bubbles
+		  
+		  /*
+		  this.velocity.x += this.acceleration.x+random(-0.09,0.09);
+		  this.velocity.y += this.acceleration.y+random(-0.09,0.09);
+		  */
+		};
+
+		// Method to display
+		Particle.prototype.display = function() {
+		// Bubble
+			//console.log(this.lifespan);
+		  //stroke(200, this.lifespan);
+		  //strokeWeight(2);
+		  //fill(127, this.lifespan);
+		//  text(floor(this.lifespan),this.position.x+(this.bubbleSize/2), this.position.y);
+		  //ellipse(this.position.x, this.position.y, this.bubbleSize , this.bubbleSize);
+		
+		//Partical
+			stroke(0);
+			strokeWeight(3);
+			point(this.position.x, this.position.y);
+
+		//Smoke
+			//stroke(0,5);
+			//strokeWeight(1);
+			//line(this.position.x, this.position.y,0, 0);
+		};
+
+		// Is the particle still useful?
+		Particle.prototype.isDead = function(){
+		  if (this.lifespan < 0) {
+		    return true;
+		  } else {
+		    return false;
+		  }
+		};
+
+
+		var ParticleSystem = function(position) {
+		  this.origin = position.copy();
+		  this.particles = [];
+		};
+
+		ParticleSystem.prototype.length = function () {
+			return this.particles.length;
+		}		
+
+		ParticleSystem.prototype.addParticle = function(position) {
+			
+			if (this.particles.length < 2500){
+		  		this.particles.push(new Particle(position));	
+		  	}
+		  
+		};
+
+
+
+		ParticleSystem.prototype.run = function(flowfield_,scl_) {
+		  for (var i = this.particles.length-1; i >= 0; i--) {
+		    var p = this.particles[i];
+		    p.run(flowfield_,scl_);
+		    if (p.isDead()) {
+		      this.particles.splice(i, 1);
+		    }
+		  }
+		};
+
+
+	
+	</script>
+
+</html>
+
+
